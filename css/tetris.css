@@ -32,11 +32,7 @@ body {
     height: 100%;
     width: 350px;
     border: 1px solid #f0d7b4;
-    /* position: relative; */
     float: left;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
 }
 
 .column{
@@ -50,6 +46,7 @@ body {
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
+    height: 108px;
 }
 
 .info{
@@ -60,10 +57,18 @@ body {
     border-radius: 5px;
 }
 
+.info ul{
+    list-style: none;
+}
 .buttons{
     margin-top: 40px;
 }
+
+#board-canvas{
+    position: absolute;
+}
 button{
+    font-family: 'Montserrat';
     background-color: #f0d6b9;
     font-size: 23px;
     color: #fff;

@@ -13,12 +13,14 @@
     <div class="main">
         <div class="game">
             <div class="board">
-                <canvas id="board-canvas" width="350" height="528"></canvas>
+                <canvas id="board-canvas" width="350" height="525"></canvas>
+                <canvas id="tile-canvas" width="350" height="525"></canvas>
             </div>
             <div class="next column">
-
+                <canvas id="next-canvas" width="120" height="100"></canvas>
             </div>
             <div class="info column">
+               
             </div>
             <div class="buttons column">
                 <button class="restart-button">Restart</button>
@@ -28,5 +30,7 @@
     </div>
     <script src="logics/config.js"></script>
     <script src="logics/app.js"></script>
+    <script src="lib/underscore.js"></script>
+    <script src="lib/polyfill.js"></script>
 </body>
 </html>
