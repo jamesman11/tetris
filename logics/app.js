@@ -23,7 +23,7 @@ App.init = function(){
     this.createBoard();
     this.bindKeyEvent();
     this.drawNext();
-    //this.frame();
+    this.frame();
 };
 App.clearRows = function(){
     this.rows = 0;

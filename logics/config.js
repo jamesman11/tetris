@@ -22,7 +22,7 @@ App.CONFIG = {
        They are used for calculating the offset, so we can center them in the preview box
      */
     TILES : {
-        "I" : { blocks: [0x0F00, 0x2222, 0x0F00, 0x2222], color: '#6CA766', preview: 0x0F00},
+        "I" : { blocks: [0xF000, 0x2222, 0xF000, 0x2222], color: '#6CA766', preview: 0x0F00},
         "J" : { blocks: [0x2260, 0x0470, 0x6440, 0x7100], color: '#73adc1', preview: 0x0470},
         "O" : { blocks: [0x6600, 0x6600, 0x6600, 0x6600], color: '#815285', preview: 0x0660},
         "S" : { blocks: [0x6C00, 0x4620, 0x6C00, 0x4620], color: '#B26D86', preview: 0x06C0},
