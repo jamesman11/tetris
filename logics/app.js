@@ -9,20 +9,23 @@ App.init = function(){
     this.btx = $bCanvas.getContext('2d');
     this.ttx = $tCanvas.getContext('2d');
     this.ntx = $nCanvas.getContext('2d');
-    this.width = $bCanvas.width;
-    this.height = $bCanvas.height;
-    this.curRow = this.CONFIG.DEFAULT_STARTING_POINT['row'];
-    this.curCol = this.CONFIG.DEFAULT_STARTING_POINT['col'];
     this.pieces = this.CONFIG.TILES_HELPER;
-    this.colCount = this.width / this.CONFIG.WIDTH_PER_GRID;
-    this.rowCount = this.height / this.CONFIG.WIDTH_PER_GRID;
+    this.colCount = $bCanvas.width / this.CONFIG.WIDTH_PER_GRID;
+    this.rowCount = $bCanvas.height / this.CONFIG.WIDTH_PER_GRID;
     this.rows = 0;
     this.actions = [];
     this.newTile();
     this.drawBoardLines();
     this.createBoard();
     this.bindKeyEvent();
-    this.drawNext();
+    this.frame();
+};
+App.restart = function(){
+    this.rows = 0;
+    this.actions = [];
+    this.drawBoardLines();
+    this.newTile();
+    this.createBoard();
     this.frame();
 };
 App.clearRows = function(){
@@ -47,15 +50,60 @@ App.update = function(timePass){
         this.drop();
     }
 };
+App.setBlocks = function(){
+    var bitCheck = 0x0001;
+    var row = 4, col = 4;
+    var curTileConfig = this.CONFIG.TILES[this.curTile];
+    for(var bit = curTileConfig['blocks'][this.curMovIndex]; bit > 0; bit = bit >> 1){
+        if(parseInt(bit & bitCheck) == 1){
+            this.setBlock(this.curRow + row - 1, this.curCol + col - 1, true);
+        }
+        if (--col === 0){
+            col = 4;
+            row--;
+        }
+    }
+};
+App.occupied = function(x, y){
+    var bitCheck = 0x0001;
+    var row = 4, col = 4;
+    var curTileConfig = this.CONFIG.TILES[this.curTile];
+    for(var bit = curTileConfig['blocks'][this.curMovIndex]; bit > 0; bit = bit >> 1){
+        if(parseInt(bit & bitCheck) == 1){
+            var checkRow = x + row - 1;
+            var checkCol = y + col - 1;
+            if (checkRow >= this.rowCount || checkCol < 0 || checkCol >= this.colCount || this.getBlock(checkRow, checkCol)){
+                return true;
+            }
+        }
+        if (--col === 0){
+            col = 4;
+            row--;
+        }
+    }
+    return false;
+};
+App.getBlock = function(row, col){
+    if (!this.board) return null;
+    if (row >= this.board.length || col < 0 || col >= this.board[0].length) return null;
+    return this.board[row][col];
+};
+App.setBlock = function(row, col, value){
+    if (!this.board) return null;
+    if (row < this.board.length || col >= 0 || col < this.board[0].length){
+        this.board[row][col] = value;
+    };
+};
 App.handle = function(action){
     switch(action) {
         case this.CONFIG.DIR.LEFT:  this.move(this.CONFIG.DIR.LEFT);  break;
         case this.CONFIG.DIR.RIGHT: this.move(this.CONFIG.DIR.RIGHT); break;
-        case this.CONFIG.DIR.UP:    this.rotate();        break;
-        case this.CONFIG.DIR.DOWN:  this.drop();          break;
+        case this.CONFIG.DIR.UP:    this.rotate();                    break;
+        case this.CONFIG.DIR.DOWN:  this.move(this.CONFIG.DIR.DOWN);  break;
     }
 };
 App.drawBoardLines = function(){
+    this.btx.clearRect(0, 0, $bCanvas.width, $bCanvas.height);
     this.btx.lineWidth = 0.5;
     this.btx.strokeStyle = this.CONFIG.BOARD_LINE_COLOR;
     // draw vertical
@@ -63,7 +111,7 @@ App.drawBoardLines = function(){
         var curPos = (i + 1)*this.CONFIG.WIDTH_PER_GRID;
         this.btx.beginPath();
         this.btx.moveTo(curPos, 0);
-        this.btx.lineTo(curPos, this.height);
+        this.btx.lineTo(curPos, $bCanvas.height);
         this.btx.stroke();
     }
     // draw horizontal
@@ -71,7 +119,7 @@ App.drawBoardLines = function(){
         var curPos = (i + 1)*this.CONFIG.WIDTH_PER_GRID;
         this.btx.beginPath();
         this.btx.moveTo(0, curPos);
-        this.btx.lineTo(this.width, curPos);
+        this.btx.lineTo($bCanvas.width, curPos);
         this.btx.stroke();
     }
 };
@@ -100,33 +148,67 @@ App.bindKeyEvent = function(){
     });
 };
 App.move = function(direction){
+    var col = this.curCol;
+    var row = this.curRow;
     switch (direction){
-        case this.CONFIG.DIR.LEFT:
-            this.curCol--;
-            break;
-        case this.CONFIG.DIR.RIGHT:
-            this.curCol++;
-            break;
-
+        case this.CONFIG.DIR.LEFT:col--;break;
+        case this.CONFIG.DIR.RIGHT:col++;break;
+        case this.CONFIG.DIR.DOWN:row++;break;
     }
+    if (!this.occupied(row, col)){
+        this.curCol = col;
+        this.curRow = row;
+        return true;
+    }else{
+        return false;
+    }
+};
+App.drop = function(){
+  if(!this.move(this.CONFIG.DIR.DOWN)){
+      if (this.curRow == 0) {
+          alert('Game over, game will be restarted..');
+          this.restart();
+          return;
+      }
+      this.setBlocks();
+      this.testBoard();
+      this.drawBoard();
+      this.newTile();
+  }
 };
 App.rotate = function(){
     this.curMovIndex = this.curMovIndex == 3 ? 0 : this.curMovIndex + 1;
     this.drawTiles();
 };
-App.drop = function(){
-    this.curRow++;
-    this.drawTiles();
-};
 App.newTile = function(){
-    this.curTile = this.ramdomPiece();
+    this.curRow = this.CONFIG.DEFAULT_STARTING_POINT['row'];
+    this.curCol = this.CONFIG.DEFAULT_STARTING_POINT['col'];
+    this.curTile = this.nextTile ? this.nextTile : this.ramdomPiece();
     this.curMovIndex = 0;
-}
+    this.nextTile = this.ramdomPiece();
+    this.drawNext();
+};
+App.drawBoard = function(){
+    var bitCheck = 0x0001;
+    var row = 4, col = 4;
+    var curTileConfig = this.CONFIG.TILES[this.curTile];
+    for(var bit = curTileConfig['blocks'][this.curMovIndex]; bit > 0; bit = bit >> 1){
+        if(parseInt(bit & bitCheck) == 1){
+            var x = (this.curCol + col - 1) * this.CONFIG.WIDTH_PER_GRID;
+            var y = (this.curRow + row - 1) * this.CONFIG.WIDTH_PER_GRID;
+            this.drawTile(x, y, this.CONFIG.WIDTH_PER_GRID - 0.5, curTileConfig['color'], this.btx);
+        }
+        if (--col === 0){
+            col = 4;
+            row--;
+        }
+    }
+};
 App.drawTiles = function(){
     var bitCheck = 0x0001;
     var row = 4, col = 4;
     var curTileConfig = this.CONFIG.TILES[this.curTile];
-    this.ttx.clearRect(0, 0, this.width, this.height);
+    this.ttx.clearRect(0, 0, $bCanvas.width, $bCanvas.height);
     for(var bit = curTileConfig['blocks'][this.curMovIndex]; bit > 0; bit = bit >> 1){
         if(parseInt(bit & bitCheck) == 1){
             var x = (this.curCol + col - 1) * this.CONFIG.WIDTH_PER_GRID;
@@ -142,8 +224,8 @@ App.drawTiles = function(){
 App.drawNext = function(){
     var bitCheck = 0x0001;
     var row = 4, col = 4;
-    var curTileConfig = this.CONFIG.TILES[this.curTile];
-    this.ntx.clearRect(0, 0, this.ntx.width,this.ntx.height);
+    var curTileConfig = this.CONFIG.TILES[this.nextTile];
+    this.ntx.clearRect(0, 0, $nCanvas.width,$nCanvas.height);
     for(var bit = curTileConfig['preview']; bit > 0; bit = bit >> 1){
         if(parseInt(bit & bitCheck) == 1){
             var x = (col - 1) * (this.CONFIG.PREVIEW_TILE_WIDTH + 1);
@@ -170,10 +252,21 @@ App.createBoard = function(){
     for(var row = 0;row < this.rowCount; row++){
         App.board[row] = new Array();
         for (var col = 0; col < this.colCount; col++){
-            App.board[row].push(0);
+            App.board[row].push(false);
         }
     }
 };
+App.testBoard = function(){
+    var str = [];
+    for(var row = 0;row < this.board.length; row++){
+        for (var col = 0; col < this.board[row].length; col++){
+            str.push(this.board[row][col] == true ? 1 : 0);
+        }
+        console.log(str.join(','));
+        str = [];
+    }
+    console.log('**************************************************');
+}
 $(document).ready(function(){
     App.init();
 });
