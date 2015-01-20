@@ -55,10 +55,19 @@ body {
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
+    text-align: left;
+    color: #A08259;
+    font-size: larger;
 }
 
-.info ul{
-    list-style: none;
+.info .score, .info .lines{
+    margin: 16px 10px 0px 10px;
+}
+.info i{
+    margin-right: 5px;
+}
+.info span{
+    color: #fd867f;
 }
 .buttons{
     margin-top: 40px;
@@ -81,6 +90,7 @@ button{
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
+    outline: none;
 }
 button:hover{
     color: #fff0e0;

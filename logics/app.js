@@ -12,34 +12,73 @@ App.init = function(){
     this.pieces = this.CONFIG.TILES_HELPER;
     this.colCount = $bCanvas.width / this.CONFIG.WIDTH_PER_GRID;
     this.rowCount = $bCanvas.height / this.CONFIG.WIDTH_PER_GRID;
-    this.rows = 0;
+    this.lines = 0;
+    this.score = 0;
     this.actions = [];
+    this.isPause = false;
     this.newTile();
     this.drawBoardLines();
     this.createBoard();
-    this.bindKeyEvent();
+    this.bindEvent();
     this.frame();
 };
-App.restart = function(){
-    this.rows = 0;
-    this.actions = [];
-    this.drawBoardLines();
-    this.newTile();
-    this.createBoard();
-    this.frame();
+App.pause = function(){
+    this.isPause = !this.isPause;
+    if (this.isPause){
+        cancelAnimationFrame(this.requestId);
+    }else{
+        App.requestId = requestAnimationFrame(App.frame);
+    }
 };
-App.clearRows = function(){
-    this.rows = 0;
+App.clearLines = function(){
+    this.lines = 0;
 };
 App.curSpeed = function(){
-    return Math.max(speed.min, speed.start - (speed.decrement * this.rows))
+    return Math.max(speed.min, speed.start - (speed.decrement * this.lines))
+};
+App.animateScore = function(addScore){
+    var score = $('.display-score');
+    this.score += addScore
+    score.animate({
+       curScore: this.score
+    },{
+        duration: 3000,
+        easing: 'linear',
+        progress: function(){
+            score.text(Math.ceil((this.curScore)));
+        },
+        complete: function(){
+            score.text(this.curScore);
+        }
+    });
+};
+App.animateLine = function(addLines){
+    var score = $('.display-lines');
+    this.lines += addLines;
+    score.animate({
+        curLines: this.lines
+    },{
+        duration: 3000,
+        easing: 'linear',
+        progress: function(){
+            score.text(Math.ceil((this.curLines)));
+        },
+        complete: function(){
+            score.text(this.curLines);
+        }
+    });
 };
 App.frame = function(){
     var now = new Date().getTime();
     App.update(Math.min(1, (now - last) / 1000.00));
-    App.drawTiles();
+    if (!App.occupied(App.curRow, App.curCol)) App.drawTiles();
+    else {
+        alert('Game over, game will be restarted..');
+        App.init();
+        return;
+    }
     last = now;
-    requestAnimationFrame(App.frame);
+    App.requestId = requestAnimationFrame(App.frame);
 };
 App.update = function(timePass){
     time = time + timePass;
@@ -123,7 +162,7 @@ App.drawBoardLines = function(){
         this.btx.stroke();
     }
 };
-App.bindKeyEvent = function(){
+App.bindEvent = function(){
     var handled = false;
     $('body').keydown(function(ev){
         switch (ev.keyCode) {
@@ -146,6 +185,15 @@ App.bindKeyEvent = function(){
         }
         if (handled) ev.preventDefault();
     });
+    $('.restart-button').click(function(e){
+        App.init();
+    });
+    $('.pause-button').click(function(e){
+        var $target = $(e.currentTarget);
+        App.pause();
+        var text = App.isPause ? "Resume" : "Pause";
+        $target.text(text);
+    });
 };
 App.move = function(direction){
     var col = this.curCol;
@@ -165,11 +213,6 @@ App.move = function(direction){
 };
 App.drop = function(){
   if(!this.move(this.CONFIG.DIR.DOWN)){
-      if (this.curRow == 0) {
-          alert('Game over, game will be restarted..');
-          this.restart();
-          return;
-      }
       this.setBlocks();
       this.testBoard();
       this.drawBoard();
@@ -243,7 +286,15 @@ App.drawTile = function(x, y, width, color, context){
     context.fillRect(x,y,width,width);
 };
 App.ramdomPiece = function(){
-    if (this.pieces.length == 0) this.pieces = this.CONFIG.TILES_HELPER;
+    if (!this.pieces || this.pieces.length == 0) {
+        this.pieces = ["I","I","I","I",
+            "J","J","J","J",
+            "O","O","O","O",
+            "S","S","S","S",
+            "T","T","T","T",
+            "L","L","L","L",
+            "Z","Z","Z","Z"];
+    }
     var index = Math.floor(Math.random() * this.pieces.length);
     return this.pieces.splice(index, 1)[0];
 };

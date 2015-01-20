@@ -30,13 +30,6 @@ App.CONFIG = {
         "L" : { blocks: [0x4460, 0x0740, 0x6220, 0x02E0], color: '#FF6C36', preview: 0x02E0},
         "Z" : { blocks: [0xC600, 0x2640, 0xC600, 0x2640], color: '#FFE460', preview: 0X0C60}
     },
-    TILES_HELPER : ["I","I","I","I",
-                    "J","J","J","J",
-                    "O","O","O","O",
-                    "S","S","S","S",
-                    "T","T","T","T",
-                    "L","L","L","L",
-                    "Z","Z","Z","Z"],
     KEY : { ESC: 27, SPACE: 32, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 },
     DIR : { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3}
 }
