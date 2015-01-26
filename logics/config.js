@@ -31,5 +31,9 @@ App.CONFIG = {
         "Z" : { blocks: [0xC600, 0x2640, 0xC600, 0x2640], color: '#FFE460', preview: 0X0C60}
     },
     KEY : { ESC: 27, SPACE: 32, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 },
-    DIR : { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3}
+    DIR : { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3},
+    SCORE_PER_LINE: 100,
+    SCORE_ANIMATE_DURATION: 1000,
+    LINE_CLEAR_TIMEOUT_DURATION: 350,
+    COLOR_WHITE: '#FFFFFF'
 }

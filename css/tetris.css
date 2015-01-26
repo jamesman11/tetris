@@ -73,7 +73,7 @@ body {
     margin-top: 40px;
 }
 
-#board-canvas{
+#board-canvas, #game-canvas{
     position: absolute;
 }
 button{
