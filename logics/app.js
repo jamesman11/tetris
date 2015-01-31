@@ -31,7 +31,7 @@ App.reset = function(){
     last = now =  new Date().getTime();
     this.actions = [];
     this.isPause = false;
-    this.resetScore();
+    this.resetUI();
     this.newTile();
     this.clearGame();
     this.createBoard();
@@ -46,13 +46,16 @@ App.pause = function(){
         this.requestId = requestAnimationFrame(this.frame);
     }
 };
-App.resetScore = function(){
+App.resetUI = function(){
     var score = $('.display-score');
     var line = $('.display-lines');
+    var message = $('.pause-message');
     this.lines = 0;
     this.score = 0;
     score.text(this.score);
     line.text(this.lines);
+    $('.pause-button').text('Pause');
+    message.hide();
 };
 App.curSpeed = function(){
     return Math.max(speed.min, speed.start - (speed.decrement * this.lines))
@@ -217,8 +220,16 @@ App.bindEvent = function(){
     });
     $('.pause-button').click(function(e){
         var $target = $(e.currentTarget);
+        var $message = $('.pause-message');
+        var text;
         App.pause();
-        var text = App.isPause ? "Resume" : "Pause";
+        if (App.isPause){
+            text = "Resume";
+            $message.show();
+        }else{
+            text = "Pause";
+            $message.hide();
+        }
         $target.text(text);
     });
 };
@@ -350,7 +361,7 @@ App.drawTiles = function(){
         if(parseInt(bit & bitCheck) == 1){
             var x = (this.curCol + col - 1) * this.CONFIG.WIDTH_PER_GRID;
             var y = (this.curRow + row - 1) * this.CONFIG.WIDTH_PER_GRID;
-            this.drawTile(x, y, this.CONFIG.WIDTH_PER_GRID, curTileConfig['color'], this.ttx);
+            this.drawTile(x, y, this.CONFIG.WIDTH_PER_GRID - 0.5, curTileConfig['color'], this.ttx);
         }
         if (--col === 0){
             col = 4;
@@ -405,17 +416,6 @@ App.createBoard = function(){
         }
     }
 };
-App.testBoard = function(){
-    var str = [];
-    for(var row = 0;row < this.board.length; row++){
-        for (var col = 0; col < this.board[row].length; col++){
-            str.push(this.board[row][col].occupied == true ? 1 : 0);
-        }
-        console.log(str.join(','));
-        str = [];
-    }
-    console.log('**************************************************');
-}
 $(document).ready(function(){
     App.init();
 });

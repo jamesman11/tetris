@@ -8,7 +8,7 @@ body {
 
 .title-group{
     margin:20px auto;
-    font-size: 21px;
+    font-size: 32px;
     font-family: 'Montserrat';
     color: #A08259;
 }
@@ -94,4 +94,13 @@ button{
 }
 button:hover{
     color: #fff0e0;
+}
+.pause-message{
+    position: absolute;
+    font-size: 54px;
+    font-family: 'Montserrat';
+    color: #aa844e;
+    margin-top: 207px;
+    margin-left: 93px;
+    display: none;
 }

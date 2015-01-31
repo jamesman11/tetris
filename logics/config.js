@@ -22,13 +22,13 @@ App.CONFIG = {
        They are used for calculating the offset, so we can center them in the preview box
      */
     TILES : {
-        "I" : { blocks: [0xF000, 0x2222, 0xF000, 0x2222], color: '#6CA766', preview: 0x0F00},
+        "I" : { blocks: [0xF000, 0x2222, 0xF000, 0x2222], color: '#8FB66F', preview: 0x0F00},
         "J" : { blocks: [0x2260, 0x0470, 0x6440, 0x7100], color: '#73adc1', preview: 0x0470},
-        "O" : { blocks: [0x6600, 0x6600, 0x6600, 0x6600], color: '#815285', preview: 0x0660},
-        "S" : { blocks: [0x6C00, 0x4620, 0x6C00, 0x4620], color: '#B26D86', preview: 0x06C0},
+        "O" : { blocks: [0x6600, 0x6600, 0x6600, 0x6600], color: '#A06288', preview: 0x0660},
+        "S" : { blocks: [0x6C00, 0x4620, 0x6C00, 0x4620], color: '#DF443C', preview: 0x06C0},
         "T" : { blocks: [0xE400, 0x2620, 0x04E0, 0x8C80], color: '#CC9D7D', preview: 0x0E40},
-        "L" : { blocks: [0x4460, 0x0740, 0x6220, 0x02E0], color: '#FF6C36', preview: 0x02E0},
-        "Z" : { blocks: [0xC600, 0x2640, 0xC600, 0x2640], color: '#FFE460', preview: 0X0C60}
+        "L" : { blocks: [0x4460, 0x0740, 0x6220, 0x02E0], color: '#FF8336', preview: 0x02E0},
+        "Z" : { blocks: [0xC600, 0x2640, 0xC600, 0x2640], color: '#FFCF60', preview: 0X0C60}
     },
     KEY : { ESC: 27, SPACE: 32, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 },
     DIR : { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3},
