@@ -29,10 +29,9 @@ App.init = function(){
 App.reset = function(){
     time = 0;
     last = now =  new Date().getTime();
-    this.lines = 0;
-    this.score = 0;
     this.actions = [];
     this.isPause = false;
+    this.resetScore();
     this.newTile();
     this.clearGame();
     this.createBoard();
@@ -47,8 +46,13 @@ App.pause = function(){
         this.requestId = requestAnimationFrame(this.frame);
     }
 };
-App.clearLines = function(){
+App.resetScore = function(){
+    var score = $('.display-score');
+    var line = $('.display-lines');
     this.lines = 0;
+    this.score = 0;
+    score.text(this.score);
+    line.text(this.lines);
 };
 App.curSpeed = function(){
     return Math.max(speed.min, speed.start - (speed.decrement * this.lines))
@@ -75,7 +79,7 @@ App.animateLine = function(addLines){
     score.animate({
         curLines: this.lines
     },{
-        duration: 3000,
+        duration: this.CONFIG.LINE_ANIMATE_DURATION,
         easing: 'linear',
         progress: function(){
             score.text(Math.ceil((this.curLines)));
@@ -112,7 +116,7 @@ App.setBlocks = function(){
     var curTileConfig = this.CONFIG.TILES[this.curTile];
     for(var bit = curTileConfig['blocks'][this.curMovIndex]; bit > 0; bit = bit >> 1){
         if(parseInt(bit & bitCheck) == 1){
-            this.setBlock(this.curRow + row - 1, this.curCol + col - 1, true);
+            this.setBlock(this.curRow + row - 1, this.curCol + col - 1, true, curTileConfig.color);
         }
         if (--col === 0){
             col = 4;
@@ -130,7 +134,7 @@ App.occupied = function(x, y){
         if(parseInt(bit & bitCheck) == 1){
             var checkRow = x + row - 1;
             var checkCol = y + col - 1;
-            if (checkRow >= this.rowCount || checkCol < 0 || checkCol >= this.colCount || this.getBlock(checkRow, checkCol)){
+            if (checkRow >= this.rowCount || checkCol < 0 || checkCol >= this.colCount || this.getBlock(checkRow, checkCol).occupied){
                 return true;
             }
         }
@@ -146,10 +150,14 @@ App.getBlock = function(row, col){
     if (row >= this.board.length || col < 0 || col >= this.board[0].length) return null;
     return this.board[row][col];
 };
-App.setBlock = function(row, col, value){
+App.setBlock = function(row, col, value, color){
     if (!this.board) return null;
     if (row < this.board.length || col >= 0 || col < this.board[0].length){
-        this.board[row][col] = value;
+        var tile = {
+            occupied: value,
+            color: color
+        }
+        this.board[row][col] = tile;
     };
 };
 App.handle = function(action){
@@ -233,8 +241,6 @@ App.move = function(direction){
 App.drop = function(){
   if(!this.move(this.CONFIG.DIR.DOWN)){
       this.setBlocks();
-      //this.testBoard();
-      this.drawGame();
       this.removeLines();
   }
 };
@@ -243,29 +249,46 @@ App.removeLines = function(){
     var rows = [];
     for(var row = this.board.length - 1; row >= 0; row--){
         for(var col = 0; col < this.board[row].length; col++){
-            isCompleted = isCompleted && this.board[row][col];
+            isCompleted = isCompleted && this.board[row][col].occupied;
         }
         if (isCompleted) rows.push(row);
         isCompleted = true;
     }
-    if (rows.length == 0){
-        this.newTile();
-    }else{
+    if (rows.length != 0){
         this.clearLines(rows);
-        this.lines += rows.length;
         this.animateLine(rows.length);
         this.animateScore((rows.length * this.CONFIG.SCORE_PER_LINE));
+        this.drawBoard();
+    }else{
+        this.drawGame();
     }
+    this.newTile();
 };
 
 App.clearLines = function(rows){
     if (!rows || rows.length == 0) return;
-    for(var i = 0; i < rows.length; i++){
-        var row = rows[i];
-        if (row < 0 || row >= rows.length) continue;
-        for(var col = 0; col < this.board[row].length; col++){
-            this.board[row][col] = false;
+    var i = this.board.length - 1;
+    var cur = this.board.length - 1;
+    while(i >= 0){
+        if (_.contains(rows, i)){
+            i--;
+            continue;
         }
+        for(var col = 0; col < this.board[i].length; col++){
+            this.board[cur][col] = this.board[i][col];
+        }
+        i--;
+        cur--;
+    }
+    while(cur >= 0){
+        for(var col = 0; col < this.board[cur].length; col++){
+            var emptyTile = {
+                occupied: false,
+                color: null
+            }
+            this.board[cur][col] = emptyTile;
+        }
+        cur--;
     }
 };
 App.rotate = function(){
@@ -285,6 +308,19 @@ App.newTile = function(){
     this.curMovIndex = 0;
     this.nextTile = this.ramdomPiece();
     this.drawNext();
+};
+App.drawBoard = function(){
+    this.clearGame();
+    for(var row = this.board.length - 1; row >= 0; row--){
+        for (var col = 0; col < this.board[row].length; col++){
+            var tile = this.board[row][col];
+            if(tile.occupied){
+                var posX = col * this.CONFIG.WIDTH_PER_GRID;
+                var posY = row * this.CONFIG.WIDTH_PER_GRID;
+                this.drawTile(posX, posY, this.CONFIG.WIDTH_PER_GRID - 0.5, tile.color, this.gtx);
+            }
+        }
+    }
 };
 App.drawGame = function(){
     var bitCheck = 0x0001;
@@ -361,7 +397,11 @@ App.createBoard = function(){
     for(var row = 0;row < this.rowCount; row++){
         App.board[row] = new Array();
         for (var col = 0; col < this.colCount; col++){
-            App.board[row].push(false);
+            var tile = {
+                occupied: false,
+                color: null
+            }
+            App.board[row].push(tile);
         }
     }
 };
@@ -369,7 +409,7 @@ App.testBoard = function(){
     var str = [];
     for(var row = 0;row < this.board.length; row++){
         for (var col = 0; col < this.board[row].length; col++){
-            str.push(this.board[row][col] == true ? 1 : 0);
+            str.push(this.board[row][col].occupied == true ? 1 : 0);
         }
         console.log(str.join(','));
         str = [];
