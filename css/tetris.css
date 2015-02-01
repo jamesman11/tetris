@@ -57,7 +57,7 @@ body {
     border-radius: 5px;
     text-align: left;
     color: #A08259;
-    font-size: larger;
+    font-size: 22px;
 }
 
 .info .score, .info .lines{
@@ -67,7 +67,7 @@ body {
     margin-right: 5px;
 }
 .info span{
-    color: #fd867f;
+    color: #fdbf7f;
 }
 .buttons{
     margin-top: 40px;
@@ -103,4 +103,15 @@ button:hover{
     margin-top: 207px;
     margin-left: 93px;
     display: none;
+}
+.contact{
+    margin-top: 10px;
+    color: #A08259;
+}
+
+.contact a{
+    color: #A08259;
+}
+.contact a:hover{
+    color: #c1a680;
 }

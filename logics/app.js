@@ -71,7 +71,7 @@ App.animateScore = function(addScore){
         progress: function(){
             score.text(Math.ceil((this.curScore)));
         },
-        complete: function(){
+        complete: function() {
             score.text(this.curScore);
         }
     });
@@ -275,7 +275,6 @@ App.removeLines = function(){
     }
     this.newTile();
 };
-
 App.clearLines = function(rows){
     if (!rows || rows.length == 0) return;
     var i = this.board.length - 1;
